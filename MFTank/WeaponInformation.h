@@ -9,6 +9,7 @@
 #define __WEAPON_INFORMATION_H__
 
 #include <Arduino.h>
+#include <Servo.h>
 
 /**
  * @class WeaponInformation
@@ -55,9 +56,21 @@ class WeaponInformation
      */
     WeaponStatus getStatus(){ return _status; }
 
-  private:
-    // 武器パーツの現在状態
-    WeaponStatus _status;
+
+    /**
+     * @fn assignPinRole     
+     * @brief 武器パーツに割り振られたピンの動作モードを設定する
+     * @param (id_or_pwr) false: ID読み取りモード, true: PWRモード
+     */
+    void assignPinRole(bool id_or_pwr, bool enable_servo);
+
+    void stopEnergy();
+
+    /**
+     * @fn motionFunc     
+     * @brief 武器の動作を記述する仮想関数
+     */
+    void (*motionFunc)(WeaponInformation*, uint16_t);
 
     // 武器パーツのID or PWR ピン番号
     uint8_t _pin_ID_PWR;
@@ -68,18 +81,12 @@ class WeaponInformation
     // 武器パーツのID番号
     uint8_t _weapon_ID;
 
-    /**
-     * @fn assignPinRole     
-     * @brief 武器パーツに割り振られたピンの動作モードを設定する
-     * @param (id_or_pwr) false: ID読み取りモード, true: PWRモード
-     */
-    void assignPinRole(bool id_or_pwr);
-
-    /**
-     * @fn motionFunc     
-     * @brief 武器の動作を記述する仮想関数
-     */
-    virtual void motionFunc();
+    Servo _servo_1;
+    Servo _servo_2;
+    
+  private:
+    // 武器パーツの現在状態
+    WeaponStatus _status;
 };
 
 

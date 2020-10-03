@@ -39,7 +39,7 @@ WeaponInformation::~WeaponInformation()
 }
 
 
-void WeaponInformation::assignPinRole(bool id_or_pwr)
+void WeaponInformation::assignPinRole(bool id_or_pwr, bool enable_servo)
 {
   if(id_or_pwr)
   {  
@@ -51,6 +51,12 @@ void WeaponInformation::assignPinRole(bool id_or_pwr)
 
   pinMode(_pin_PWM1, OUTPUT);
   pinMode(_pin_PWM2, OUTPUT);
+
+  if(enable_servo)
+  {
+    _servo_1.attach(_pin_PWM1, 500, 2400);
+    _servo_2.attach(_pin_PWM2, 500, 2400);
+  }
 }
 
 
@@ -63,7 +69,7 @@ uint8_t WeaponInformation::readWeaponID()
     /**
      * ID読み取りモードへ切り替え
      */
-    assignPinRole(false);
+    // assignPinRole(false);
     delay(100);
 
     /**
@@ -91,7 +97,7 @@ uint8_t WeaponInformation::readWeaponID()
     /**
      * 動作指示モードへ切り替え
      */
-    assignPinRole(true);
+    // assignPinRole(true);
     delay(100);
   }
 
@@ -99,9 +105,7 @@ uint8_t WeaponInformation::readWeaponID()
 }
 
 
-void WeaponInformation::motionFunc()
+void WeaponInformation::stopEnergy()
 {
-  /**
-   * None
-   */ 
+  digitalWrite(_pin_ID_PWR, LOW);
 }

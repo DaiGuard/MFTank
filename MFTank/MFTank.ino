@@ -8,6 +8,9 @@
 #include "define.h"
 #include "StateTransition.h"
 #include "WeaponInformation.h"
+#include "GunWeapon.h"
+#include "ArmWeaponR.h"
+#include "ArmWeaponL.h"
 #include "PWMReceiver.h"
 #include "DamegeControl.h"
 
@@ -47,7 +50,29 @@ void setup() {
   /**
    * ダメージ用割り込み関数の設定
    */
-  DamegeControl::setInterrupt(NULL, NULL, NULL);
+  // DamegeControl::setInterrupt(NULL, NULL, NULL);
+
+  /**
+   *
+   */
+  weapons[0].motionFunc = gunWeaponMotion;
+  weapons[1].motionFunc = armWeaponRMotion;
+  weapons[2].motionFunc = armWeaponLMotion;  
+
+  /**
+   * 武器ユニットのピンモードを設定する
+   */
+  weapons[0].assignPinRole(true, false); 
+  weapons[1].assignPinRole(true, true); 
+  weapons[2].assignPinRole(true, true); 
+
+  /**
+   * PWM受信のピンモードを設定する
+   */
+  for(int i=0; i<RECV_PWM_NUM; i++)
+  {
+    recvPwms[i].assignPinRole();
+  }
 }
 
 /**
@@ -80,10 +105,14 @@ void loop() {
   {
     ratios[i] = recvPwms[i].getDutyRatio();
 
+    Serial.print(ratios[i]);
+    Serial.print(", ");
+
     // 無線受信切れを確認する
     if(recvPwms[i].getStatus() == PWMReceiver::DISCONNECTED)
       connected = false;
   }
+  Serial.print(":PWM, ");
 
   // 無線受信状態のイベントを整理する
   if(connected)
@@ -98,13 +127,13 @@ void loop() {
   /**
    * HP確認
    */
-  if(DamegeControl::getHP() <= 0)
-  {
-    events |= StateTransition::HP_ZERO;
-  }
-  else{
-    events |= StateTransition::HP_RECOVER;
-  }
+  // if(DamegeControl::getHP() <= 0)
+  // {
+  //   events |= StateTransition::HP_ZERO;
+  // }
+  // else{
+  //   events |= StateTransition::HP_RECOVER;
+  // }
 
   /**
    * 
@@ -115,13 +144,13 @@ void loop() {
     /**
      * 武器IDチェックを行う
      */
-    for(int i=0; i<WEAPON_NUM; i++)
-    {
-      int id = weapons[i].readWeaponID();
-      Serial.print(id);
-      Serial.print(", ");
-    }
-    Serial.print(":WEAPN, ");
+    // for(int i=0; i<WEAPON_NUM; i++)
+    // {
+    //   int id = weapons[i].readWeaponID();
+    //   Serial.print(id);
+    //   Serial.print(", ");
+    // }
+    // Serial.print(":WEAPN, ");
 
     events |= StateTransition::INIT_COMP;
 
@@ -130,6 +159,18 @@ void loop() {
     /**
      * 各武器に動作指示を行う
      */
+    (*weapons[0].motionFunc)(&weapons[0], ratios[0]);
+
+    if(ratios[0] < 1600)
+    {
+      (*weapons[1].motionFunc)(&weapons[1], ratios[1]);
+      (*weapons[2].motionFunc)(&weapons[2], ratios[2]);
+    }
+    else
+    {
+      (*weapons[1].motionFunc)(&weapons[1], 2100);
+      (*weapons[2].motionFunc)(&weapons[2], 2100);
+    }
   break;
   case StateTransition::ROBOT_PASSIVE:
     /**

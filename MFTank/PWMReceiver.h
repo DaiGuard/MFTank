@@ -54,18 +54,18 @@ class PWMReceiver
      */
     PWMReceiverStatus getStatus(){ return _status; }
 
+    /**
+     * @fn assignPinRole     
+     * @brief 割り振られたピンの動作モードを設定する
+     */
+    void assignPinRole();
+    
   private:
     // 武器パーツの現在状態
     PWMReceiverStatus _status;
 
     // PWM信号を受信するピン番号
     uint8_t _pin_PWM;
-
-    /**
-     * @fn assignPinRole     
-     * @brief 割り振られたピンの動作モードを設定する
-     */
-    void assignPinRole();
 };
 
 #endif

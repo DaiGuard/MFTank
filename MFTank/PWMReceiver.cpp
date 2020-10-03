@@ -20,11 +20,6 @@ PWMReceiver::PWMReceiver(uint8_t pin_PWM)
    * ピン番号を初期登録する
    */
   _pin_PWM = pin_PWM;
-
-  /**
-   * ピンに役割を登録
-   */
-  assignPinRole();
 }
 
 
@@ -41,7 +36,7 @@ void PWMReceiver::assignPinRole()
   /**
    * ※動作に影響しなかったので廃止
    */
-  // pinMode(_pin_PWM, INPUT);
+  pinMode(_pin_PWM, INPUT);
 }
 
 unsigned long PWMReceiver::getDutyRatio()
